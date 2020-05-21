@@ -375,14 +375,14 @@ SELECT ROUND(AVG(salary))
 FROM employees
 WHERE salary NOT IN (
 (SELECT MIN(salary) FROM employees),
-(SELECT MAX(salary) FROM employees)
-)
-
+(SELECT MAX(salary) FROM employees))
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --------- SECTION 6 USING CASE CLAUSE IN INTERESTING WAYS 
 
+
+	
 --- create another column for salary that says underpaid or paid well 
 -- USE CASE to create a new column and specify certain attributes 
 SELECT first_name, salary, 
@@ -396,13 +396,14 @@ ORDER BY salary DESC
 
 
 
+
 -- Use the same type of Query but this time if the employee makes more than 100K but less than 160K its paid well if not they are an executive 
 (SELECT first_name, salary, 
 CASE
 WHEN salary < 100000 THEN 'UNDER PAID'
 WHEN salary > 100000 AND salary < 160000 THEN 'PAID WELL'
 ELSE 'EXECUTIVE'
-END compensation
+END compensation)
 FROM employees
 ORDER BY salary DESC
 
@@ -411,14 +412,14 @@ SELECT COUNT(*), (CASE
 WHEN salary < 100000 THEN 'UNDER PAID'
 WHEN salary > 100000 AND salary < 160000 THEN 'PAID WELL'
 ELSE 'EXECUTIVE'
-END ) compensation
+END) compensation
 FROM employees
 GROUP by compensation 
 
+
+
 --- put all of this in a subquery 
-SELECT a.compensation, COUNT(*) FROM 
- (
-SELECT first_name, salary, 
+SELECT a.compensation, COUNT(*) FROM (SELECT first_name, salary, 
 CASE
 WHEN salary < 100000 THEN 'UNDER PAID'
 WHEN salary > 100000 AND salary < 160000 THEN 'PAID WELL'
@@ -427,6 +428,7 @@ END compensation
 FROM employees
  ) a
  GROUP BY a.compensation
+
 
 
 --- wrap this up into a subquery and get the total count of all the executive and pay group. table needs to display category and total count 
@@ -440,6 +442,218 @@ ELSE 'EXECUTIVE'
 END compensation 
 FROM employees) a
 GROUP BY a.compensation
+
+------What if we wanted to make the compensation rows into columns. 
+-- the sum function will sum the case
+-- SUM(CASE WHEN column name < value THEN 1 ELSE 0 END) AS column name. 
+									--THEN 1 is +1 for every time this is True if not 0
+									-- THEN if this then that 
+SELECT SUM(CASE WHEN salary < 100000 THEN 1 ELSE 0 END) AS low_paid, 
+SUM(CASE WHEN salary > 100000 AND salary < 150000 THEN 1 ELSE 0 END) AS paid_well,
+SUM(CASE WHEN salary > 150000 THEN 1 ELSE 0 END) AS executive
+FROM employees
+
+
+Select department, count(*)
+FROM employees 
+WHERE department in ('Sports', 'Tools')
+GROUP BY department
+
+
+
+---Create a query where you count the number of employees in each department as a header for sports, tools, clothing, and computers 
+SELECT SUM(CASE WHEN department= 'Sports' THEN 1 ELSE 0 END) as sports_employees, 
+SUM(CASE WHEN department = 'Tools' THEN 1 ELSE 0 END) AS tools_employees, 
+SUM(CASE WHEN department = 'Clothing' THEN 1 ELSE 0 END) AS clothing_employees, 
+SUM(CASE WHEN department = 'Computers' THEN 1 ELSE 0 END) AS computer_employees
+FROM employees 
+
+
+-- Create a query that has first_name, region_1, region_2, 3, 4, 5, 6, 7. Find the employee name for each of the regions and for each region put the country 
+SELECT * FROM regions -- country is in regions table 
+-- region_id for United states is 1, 2, 3
+-- region_id for Asia is 4, 5
+-- region_id for Canada is 6, 7 
+SELECT * FROM employees -- region_id is also in employees 
+
+SELECT first_name, 
+(CASE WHEN region_id = 1 THEN 'United States' END) as region_1,
+(CASE WHEN region_id = 2 THEN 'United States' END) as region_2,
+(CASE WHEN region_id = 3 THEN 'United States' END) as region_3,
+(CASE WHEN region_id = 4 THEN 'Asia' END) as region_4,
+(CASE WHEN region_id = 5 THEN 'Asia' END) as region_5,
+(CASE WHEN region_id = 6 THEN 'Canada' END) as region_6,
+(CASE WHEN region_id = 7 THEN 'Canada' END) as region_7
+FROM employees
+
+
+-- use the subquery to find the country per region_id 
+SELECT first_name, 
+CASE WHEN region_id = 1 THEN (SELECT country FROM regions WHERE region_id = 1) END region_1, 
+CASE WHEN region_id = 2 THEN (SELECT country FROM regions WHERE region_id = 2) END region_2,
+CASE WHEN region_id = 3 THEN (SELECT country FROM regions WHERE region_id = 3) END region_3,
+CASE WHEN region_id = 4 THEN (SELECT country FROM regions WHERE region_id = 4) END region_4,
+CASE WHEN region_id = 5 THEN (SELECT country FROM regions WHERE region_id = 5) END region_5,
+CASE WHEN region_id = 6 THEN (SELECT country FROM regions WHERE region_id = 6) END region_6,
+CASE WHEN region_id = 7 THEN (SELECT country FROM regions WHERE region_id = 7) END region_7
+FROM employees
+
+--Create a query where you count the number of employees for united states, asia, and canada. Solve without using joins. 
+-- use past query to find your result. 
+SELECT COUNT(a.region_1)+ COUNT(a.region_2) + COUNT(a.region_3) AS United_states, 
+COUNT(a.region_4)+COUNT(a.region_5) AS Asia,
+COUNT(a.region_6)+COUNT(a.region_7) AS Canada
+FROM (SELECT first_name, 
+CASE WHEN region_id = 1 THEN (SELECT country FROM regions WHERE region_id = 1) END region_1, 
+CASE WHEN region_id = 2 THEN (SELECT country FROM regions WHERE region_id = 2) END region_2,
+CASE WHEN region_id = 3 THEN (SELECT country FROM regions WHERE region_id = 3) END region_3,
+CASE WHEN region_id = 4 THEN (SELECT country FROM regions WHERE region_id = 4) END region_4,
+CASE WHEN region_id = 5 THEN (SELECT country FROM regions WHERE region_id = 5) END region_5,
+CASE WHEN region_id = 6 THEN (SELECT country FROM regions WHERE region_id = 6) END region_6,
+CASE WHEN region_id = 7 THEN (SELECT country FROM regions WHERE region_id = 7) END region_7
+FROM employees) As a
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+----------- SECTION 7 ADVANCED QUERY TECHNIQUES USING CORRELATED SUBQUERIES 
+
+-- UNDERSTANDING CORRELATED SUBQUERIES 
+
+SELECT first_name, salary
+FROM employees
+WHERE salary > (SELECT ROUND(AVG(salary)) FROM employees) -- not corralted subquery 
+
+-- query employees above 
+SELECT first_name, salary
+FROM employees e1
+WHERE salary > (SELECT ROUND(AVG(salary)) FROM employees e2 WHERE e1.department = e2.department) 
+				
+-- correlated subquery because we are using two tables but they are both correlated by using the WHERE from column in table e1 and column in table e2 
+
+-- find the avg by region_id 	
+SELECT first_name, salary
+FROM employees e1
+WHERE salary > (SELECT ROUND(AVG(salary)) FROM employees e2 WHERE e1.region_id = e2.region_id) 
+
+-- find the avg salary by department and find the name and salary of the person with greater than the average salary by department. 
+SELECT first_name, department, salary, (SELECT ROUND(AVG(salary)) FROM employees e2 WHERE e1.department = e2.department) AS avg_department_sal
+FROM employees e1
+
+-- correlated subquery is run from everthing in the outer query. 
+
+--- write a query for name of department that have more than 38 employees working. use a correlated sub query
+SELECT * FROM employees
+
+
+SELECT department 
+FROM employees e1
+WHERE 38 < (SELECT COUNT(*) FROM employees e2 WHERE e1.department = e2.department)
+-- this only gets the department column that have more than 38
+
+SELECT distinct(department)
+FROM employees e1 
+WHERE 38 < (SELECT COUNT(*) FROM employees e2 WHERE e1.department = e2.department)
+-- used distinct to find unqiue department for 13 rows
+
+-- use the group by to find the 13 unqiue departments. Another way from above. 
+SELECT department 
+FROM employees e1 
+WHERE 38 < (SELECT COUNT(*) FROM employees e2 WHERE e1.department = e2.department)
+GROUP by department
+
+--- used the department table 
+SELECT department 
+FROM departments d
+WHERE 38 < (SELECT COUNT(*) FROM employees e1 WHERE d.department = e1.department)
+
+----------------
+-- Present another column with the highest paid employees salary for each one of these department 
+
+					-- use a correlated subquery and match on WHERE department = d.department 
+SELECT department, (SELECT MAX(salary) FROM employees e1 WHERE e1.department = d.department) as max_sal
+FROM departments d
+WHERE 38 < (SELECT COUNT(*) FROM employees e1 WHERE d.department = e1.department)
+ORDER BY max_sal
+
+
+----------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------
+---------------- 28 Exercise Correlated Subqueiries 
+
+-- Create a table of department, first_name, salary, and salary in department HIGHEST and lowest of the group 
+-- 1st find the min and max with added column 
+-- we do not want to group by department. 
+SELECT max(salary) max_sal, min(salary) min_sal, department FROM employees GROUP BY department
+
+-- create a correlated subquery
+SELECT department, first_name, salary, 
+(SELECT max(salary) FROM employees e2 WHERE e1.department = e2.department) as max_by_dept
+FROM employees e1
+ORDER BY department
+-- this give us the max of the department 
+-- create the min function
+SELECT department, first_name, salary, 
+(SELECT max(salary) FROM employees e2 WHERE e1.department = e2.department) as max_by_dept,
+(SELECT min(salary) FROM employees e2 WHERE e1.department = e2.department) as min_by_dept
+FROM employees e1
+ORDER BY department
+-- use this as a subquery 
+-- 3. use the subqeury 
+SELECT department, first_name, salary FROM (
+SELECT department, first_name, salary, 
+(SELECT max(salary) FROM employees e2 WHERE e1.department = e2.department) as max_by_dept,
+(SELECT min(salary) FROM employees e2 WHERE e1.department = e2.department) as min_by_dept
+FROM employees e1
+ORDER BY department
+) as a  --give subquery name
+WHERE salary in (max_by_dept, min_by_dept)
+
+-- ADD case statement 
+SELECT department, first_name, salary, --create the case for high or low 
+CASE 
+WHEN salary = max_by_dept THEN 'HIGHEST SALARY'
+WHEN salary = min_by_dept THEN 'LOWEST SALARY'
+END as salary_in_dept    -- add ending column name 
+FROM (
+SELECT department, first_name, salary, 
+(SELECT max(salary) FROM employees e2 WHERE e1.department = e2.department) as max_by_dept,
+(SELECT min(salary) FROM employees e2 WHERE e1.department = e2.department) as min_by_dept
+FROM employees e1
+ORDER BY department
+) as a  --give subquery name
+WHERE salary in (max_by_dept, min_by_dept)
+
+
+
+
+
+SELECT department, first_name, salary, e2.salary_in_department
+FROM employees e1
+GROUP BY department, first_name
+WHERE (SELECT salary,
+CASE 
+WHEN salary = MAX(salary) THEN 'HIGHEST SALARY'
+WHEN salary = MIN(salary) THEN 'LOWEST SALARY'
+END 
+FROM employees e2 GROUP BY salary WHERE e1.department = e2.department) as salary_in_department
+
+
+SELECT department, first_name, salary, 
+(SELECT salary, 
+CASE WHEN salary = MAX(salary) THEN 'HIGHEST SALARY'
+WHEN salary = MIN(salary) THEN 'LOWEST SALARY'
+END
+FROM employees e2 WHERE e1.department = e2.department
+GROUP BY salary) AS salary_in_department
+FROM employees e1
+
+									   
+
+
+
 
 
 
