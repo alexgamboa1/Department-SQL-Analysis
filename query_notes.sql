@@ -695,7 +695,76 @@ FROM employees INNER JOIN departments ON employees.department = departments.depa
 -- to expose all of the departments in the departments table you can use LEFT JOIN 
 -- give me all departments in employees table regardless if they exisit in the departments table
 -- more preference to the left table, same as right join, more preference to right table. 
-									
+
+SELECT distinct employees.department as emp_dept, departments.department depts_dept
+FROM employees LEFT JOIN departments ON employees.department = departments.department
+-- notice pluming is not matching, maintenance, security, camping 
+-- 27 records for department because we are giving priority to employees table with the left join and whatever matches with dept_dept table will show up or will be NULL
+
+SELECT distinct employees.department as emp_dept, departments.department depts_dept
+FROM employees RIGHT JOIN departments ON employees.department = departments.department
+-- 24 records because its choosing departments as the main and what ever is not on employees table will show NULL 
+
+
+-- See only departments from employees table that do not exist in departments table 
+SELECT distinct e.department as emp_dept, d.department  -- use distinct to find the unique values 
+FROM employees e LEFT JOIN departments d ON e.department = d.department
+WHERE d.department IS NULL    				-- use IS NULL to find the NULL
+
+-- out put are the 4 departments that are in employees that are not shown in departments table. 
+
+
+
+SELECT distinct employees.department as emp_dept, departments.department depts_dept
+FROM employees FULL OUTER JOIN departments ON employees.department = departments.department
+-- FULL OUTER JOIN is the department that is listed in each table but is not listed in the other table. 
+-- where theres a match it shows it, but where there is no match it shows NULL. FULL OUTER JOIN EXPOSES each table 
+
+
+--------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------
+-- 31 Using UNION, UNION ALL and Except Clauses 
+
+-- UNION stacks each table on top of each other. 
+SELECT DISTINCT department 
+FROM employees 
+UNION 
+SELECT department FROM departments 
+-- this will join the two tables on top of each other STACKED data and we get 28 rows of department information. 
+
+-- UNION ALL 
+SELECT distinct department 
+FROM employees --27 records
+UNION ALL
+SELECT department FROM departments --24 records
+
+-- UNION ALL stacks up the data on top of each other and counts duplicates so we get 51 records. 
+
+SELECT distinct department, first_name 
+FROM employees 
+UNION ALL 
+SELECT department, division -- we are stacking first_name and division so it doesnt makes sense but it stacks on column type both strings. 
+FROM departments 
+
+-- EXCEPT clause takes the first result sets and removes from it all the rows found in the second result step. 
+SELECT DISTINCT department 
+FROM employees 
+EXCEPT 
+SELECT department 
+FROM departments
+-- all the employees table for dept that are not found in departments table. 
+-- camping, maintenance, pluming, security from employees table but are not found in departments table.
+
+
+----------_Generate a report, department, number of employees for department, and total count of employees, bottom total. 
+SELECT department, count(*)  -- select department and count(*) all 
+FROM employees 
+GROUP BY department 		-- group by counting from department 
+UNION ALL 					-- UNION ALL will show all the departments 
+SELECT 'TOTAL', count(*)	-- SELECT 'TOTAL' will create a row and show the result 
+from employees
+
 								
 
 
