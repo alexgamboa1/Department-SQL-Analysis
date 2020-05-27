@@ -650,7 +650,53 @@ FROM employees e2 WHERE e1.department = e2.department
 GROUP BY salary) AS salary_in_department
 FROM employees e1
 
-									   
+-- 30. INNER and OUTER JOINS
+
+SELECT * FROM employees
+
+-- if table 1 and table 2 have common columns you can use a join to pick 
+
+--SELECT first_name and country from employees and regions use INNER JOIN ON two tables 
+SELECT first_name, country 
+FROM employees INNER JOIN regions 
+ON employees.region_id = regions.region_id
+
+--query first_name, email and division make sure emails is filled in. 
+SELECT first_name, email, division 
+FROM employees e INNER JOIN departments d
+ON e.department = d.department
+WHERE email IS NOT NULL 
+
+-- do the same as above but add country 
+SELECT first_name, email, division, country
+FROM employees e INNER JOIN departments d
+ON e.department = d.department
+INNER JOIN regions r 				-- add another region for another table 
+ON e.region_id = r.region_id		-- add another ON column to specify the common column on a inner join 
+WHERE email IS NOT NULL 
+-- this exercise joined 3 different tables with 2 different inner joins 
+
+------------------------------------------
+-- INNER JOIN - joins on the like data, only when they are equal to one another they will join. 
+
+--if departments table has some not from employees table, you would use an OUTER JOIN 
+
+SELECT distinct department from employees -- 27 department
+
+SELECT distinct department from departments  -- 24 department (camping & fishing)
+
+-- join them by similar items 
+SELECT distinct employees.department, departments.department
+FROM employees INNER JOIN departments ON employees.department = departments.department
+-- return 23 department 
+
+-- there is a row in departments table that is not referenced in the employees table 
+
+-- to expose all of the departments in the departments table you can use LEFT JOIN 
+-- give me all departments in employees table regardless if they exisit in the departments table
+-- more preference to the left table, same as right join, more preference to right table. 
+									
+								
 
 
 
