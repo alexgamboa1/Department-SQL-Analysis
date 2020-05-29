@@ -765,6 +765,56 @@ UNION ALL 					-- UNION ALL will show all the departments
 SELECT 'TOTAL', count(*)	-- SELECT 'TOTAL' will create a row and show the result 
 from employees
 
+-- 32. Cartesian Product with the CROSS JOIN 
+
+SELECT * FROM employees, departments --if you dont specify a join it will give you all the possible options table rows * table 2 rows 
+-- employees name is being repeated. 
+
+SELECT * FROM departments -- 24 records, employees has 1000 records. if you do both as above you will show every single combo of rows will be returned (24K) options
+
+
+SELECT COUNT(*) FROM (
+SELECT * 
+FROM employees a, employees b --two sources now because of alias but we will get 1M rows. 1K x 1K 
+) sub 
+--- CARTENSIA PRODUCT. 
+
+-- When you need a Cartensia Product you can do a Cross Join 
+SELECT * 
+FROM employees e CROSS JOIN departments d
+-- each one of the records is having a added departments table on the right of the table on department d table. 
+
+---33
+
+-- EXERCISES 
+-- create a query for the first_name, dpartment, hire_date, country  pick only the first hire and last hire for department. 
+SELECT * FROM employees
+SELECT * FROM regions
+
+SELECT first_name, department, hire_date, country
+FROM employees e INNER JOIN regions r    -- Inner Join 
+ON e.region_id = r.region_id
+WHERE hire_date = (SELECT MIN(hire_date) FROM employees e2) --WHERE hire_date is Min 
+UNION ALL 								-- Use UNION ALL to stack responses 
+SELECT first_name, department, hire_date, country
+FROM employees e INNER JOIN regions r    -- Inner Join 
+ON e.region_id = r.region_id
+WHERE hire_date = (SELECT MAX(hire_date) FROM employees e2) --WHERE hire_date is MAX
+ORDER BY department 
+
+-- IF you wanted to see only 1 
+(SELECT first_name, department, hire_date, country
+FROM employees e INNER JOIN regions r    -- Inner Join 
+ON e.region_id = r.region_id
+WHERE hire_date = (SELECT MIN(hire_date) FROM employees e2) --WHERE hire_date is Min 
+LIMIT 1)																				-- Use Paranthese () to allow LIMIT 1 before the UNION ALL because of Union limitations
+UNION ALL 								-- Use UNION ALL to stack responses 
+SELECT first_name, department, hire_date, country
+FROM employees e INNER JOIN regions r    -- Inner Join 
+ON e.region_id = r.region_id
+WHERE hire_date = (SELECT MAX(hire_date) FROM employees e2) --WHERE hire_date is MAX
+ORDER BY department 
+
 								
 
 
