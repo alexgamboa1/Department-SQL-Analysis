@@ -815,6 +815,61 @@ ON e.region_id = r.region_id
 WHERE hire_date = (SELECT MAX(hire_date) FROM employees e2) --WHERE hire_date is MAX
 ORDER BY department 
 
+-----------EXERCISE 
+-- report on spending for salary budget has flucated for every 90 days 
+-- Use a correlated subquery 
+-- use data artithemtic 
+SELECT first_name, hire_date, hire_date + 90 
+FROM employees
+ORDER BY hire_date
+
+--- use a query like this example 
+SELECT first_name, hire_date, hire_date + 90 
+FROM employees
+WHERE hire_date BETWEEN hire_date AND hire_date -90 
+
+-- start EXERCISE 
+-- show how salary spending budget has flucated based on hire_dates 
+-- hire_date, salary, and spending column 
+
+SELECT hire_date, salary, 
+(SELECT SUM(salary) FROM employees e2
+WHERE e2.hire_date BETWEEN e2.hire_date - 90 AND e.hire_date) AS spending_pattern
+-- where correlated hire_date starts at hire_date -90 for 90 day period in relation to e.hire_date
+FROM employees e 
+ORDER BY hire_date
+
+--------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------
+-- 34. Creating Views vs INLINE views 
+
+SELECT * FROM employees
+
+SELECT * FROM departments 
+
+SELECT * FROM regions
+
+-- Create a query for all this information 
+SELECT first_name, email, e.department, salary, division
+FROM employees e, departments d, regions r
+WHERE e.department = d.department 
+AND e.region_id = r.region_id 
+
+-- to create a view add CREATE View and give alias, usually the alias starts with v because its a view. 
+CREATE VIEW v_employee_info as
+SELECT first_name, email, e.department, salary, division
+FROM employees e, departments d, regions r
+WHERE e.department = d.department 
+AND e.region_id = r.region_id 
+
+
+SELECT * FROM v_employee_info 
+-- we have created a view and it shows us the data, you cannot insert data into it or delete data from it
+
+-- IN LINE VIEWS 
+SELECT * FROM (select * from departments) as b
+
+-- In Line view is a subquery 
 								
 
 
